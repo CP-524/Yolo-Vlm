@@ -1,0 +1,47 @@
+# Pipeline参数配置
+
+# Agentic Pipeline Configuration
+agentic_pipeline:
+  enable_vlm: true
+  enable_query_processor: true
+  use_parallel: true
+  max_workers: 4
+
+# Query Processing
+query_processing:
+  similarity_threshold: 0.3
+  top_k_candidates: 10
+  use_semantic_matching: true
+
+# Detection Refinement
+detection_refinement:
+  enable_nms: true
+  nms_threshold: 0.45
+  min_confidence: 0.25
+  enable_filtering: true
+
+# VLM Verification
+vlm_verification:
+  enable: true
+  verification_threshold: 0.2
+  batch_size: 32
+  use_ensemble: false
+
+# Baseline Configuration
+baseline:
+  model: "yolov8s"
+  confidence: 0.25
+  iou: 0.45
+
+# Optimization Settings
+optimization:
+  use_amp: true  # Automatic Mixed Precision
+  use_compile: false  # torch.compile (PyTorch 2.0+)
+  num_workers: 4
+
+# Experiment Tracking
+tracking:
+  enable_logging: true
+  log_dir: "./outputs/logs"
+  save_predictions: true
+  save_visualizations: true

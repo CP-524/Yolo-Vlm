@@ -1,0 +1,31 @@
+# DOTA数据集配置
+path: ./data/DOTA
+train: images/train
+val: images/val
+test: images/test
+
+# Classes
+names:
+  0: baseball-diamond
+  1: basketball-court
+  2: bridge
+  3: ground-track-field
+  4: harbor
+  5: helicopter
+  6: large-vehicle
+  7: plane
+  8: roundabout
+  9: ship
+  10: small-vehicle
+  11: soccer-ball-field
+  12: storage-tank
+  13: swimming-pool
+  14: tennis-court
+nc: 15
+
+# Dataset configuration
+dataset:
+  image_size: 1024
+  augmentation: true
+  mosaic: 1.0
+  mixup: 0.0

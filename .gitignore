@@ -1,0 +1,90 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environments
+venv/
+ENV/
+env/
+.venv
+
+# Jupyter Notebook
+.ipynb_checkpoints
+*.ipynb
+
+# PyCharm
+.idea/
+
+# VSCode
+.vscode/
+*.code-workspace
+
+# Model weights
+*.pt
+*.pth
+*.onnx
+*.weights
+!yolov8s.pt
+!yolo11n.pt
+
+# Data
+data/DOTA/images/
+data/DOTA/labels/
+*.jpg
+*.png
+*.jpeg
+*.bmp
+
+# Outputs
+outputs/checkpoints/
+outputs/predictions/*.txt
+outputs/predictions/*.json
+outputs/logs/*.log
+outputs/yolo_predictions/
+
+# Experiments
+experiments/*/runs/
+experiments/*/*.json
+experiments/*/*.csv
+
+# System files
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+
+# Logs
+*.log
+logs/
+
+# Cache
+.cache/
+*.cache
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Distribution
+*.tar.gz
+*.zip

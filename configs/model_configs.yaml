@@ -1,0 +1,38 @@
+# 模型配置（YOLO、VLM选择等）
+
+# YOLO Model Configuration
+yolo:
+  model_name: "YOLO/DOTA.pt"  # yolov8n, yolov8s, yolov8m, yolov8l, yolov8x, yolo11n
+  pretrained: true
+  confidence_threshold: 0.25
+  iou_threshold: 0.45
+  max_det: 300
+  device: "cuda"  # cuda or cpu
+  imgsz: 1024
+
+# VLM Model Configuration
+vlm:
+  model_type: "clip"  # clip, llava, blip2
+  model_name: "ViT-B/32"  # For CLIP: ViT-B/32, ViT-L/14
+  device: "cuda"
+  batch_size: 32
+
+# CLIP Specific Settings
+clip:
+  model_name: "ViT-B/32"
+  # ViT-L/14
+  pretrained: "openai"
+
+# LLaVA Specific Settings (if used)
+llava:
+  model_name: "liuhaotian/llava-v1.5-7b"
+  load_8bit: false
+  load_4bit: false
+
+# Model Paths
+paths:
+  yolo_weights: "yolov8s.pt"  # 默认预训练权重
+  # yolo_weights: "path/to/your/best.pt"  # 使用你训练好的权重，取消注释并修改路径
+  # yolo_weights: "YOLO/DOTA.pt"  # 如果权重在YOLO目录下
+  vlm_cache: "./models/vlm_cache"
+  output_dir: "./outputs"
