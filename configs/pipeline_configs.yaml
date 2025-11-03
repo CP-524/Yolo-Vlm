@@ -5,7 +5,7 @@ agentic_pipeline:
   enable_vlm: true
   enable_query_processor: true
   use_parallel: true
-  max_workers: 4
+  max_workers: 8
 
 # Query Processing
 query_processing:
@@ -23,15 +23,15 @@ detection_refinement:
 # VLM Verification
 vlm_verification:
   enable: true
-  verification_threshold: 0.2
+  verification_threshold: 0.18
   batch_size: 32
   use_ensemble: false
 
 # Baseline Configuration
 baseline:
   model: "yolov8s"
-  confidence: 0.25
-  iou: 0.45
+  confidence: 0.15
+  iou: 0.5
 
 # Optimization Settings
 optimization:

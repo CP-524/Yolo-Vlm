@@ -33,7 +33,9 @@ def load_annotations(annotation_path: str, format: str = 'yolo') -> Dict:
 def load_yolo_annotations(txt_path: Path) -> Dict:
     """
     加载YOLO格式标注
-    格式: class_id x_center y_center width height (归一化坐标)
+    支持两种格式:
+    1. 标准YOLO: class_id x_center y_center width height (5个数字)
+    2. DOTA旋转框: class_id x1 y1 x2 y2 x3 y3 x4 y4 (9个数字)
     
     Args:
         txt_path: 标注文件路径
@@ -49,10 +51,41 @@ def load_yolo_annotations(txt_path: Path) -> Dict:
         }
     
     annotations = []
+    obb_annotations = []
+    is_obb = False
+    
     with open(txt_path, 'r') as f:
         for line in f:
             parts = line.strip().split()
-            if len(parts) >= 5:
+            
+            if len(parts) >= 9:
+                # DOTA旋转框格式: class_id x1 y1 x2 y2 x3 y3 x4 y4
+                is_obb = True
+                class_id = int(parts[0])
+                points = list(map(float, parts[1:9]))
+                
+                # 保存原始旋转框坐标
+                obb_annotations.append([class_id] + points)
+                
+                # 同时计算水平边界框用于兼容
+                xs = [points[0], points[2], points[4], points[6]]
+                ys = [points[1], points[3], points[5], points[7]]
+                
+                x_min = min(xs)
+                x_max = max(xs)
+                y_min = min(ys)
+                y_max = max(ys)
+                
+                # 转换为中心点格式
+                x_center = (x_min + x_max) / 2
+                y_center = (y_min + y_max) / 2
+                width = x_max - x_min
+                height = y_max - y_min
+                
+                annotations.append([class_id, x_center, y_center, width, height])
+                
+            elif len(parts) >= 5:
+                # 标准YOLO格式: class_id x_center y_center width height
                 class_id = int(parts[0])
                 x_center, y_center, width, height = map(float, parts[1:5])
                 annotations.append([class_id, x_center, y_center, width, height])
@@ -61,16 +94,26 @@ def load_yolo_annotations(txt_path: Path) -> Dict:
         return {
             'boxes': np.array([]),
             'classes': np.array([]),
-            'format': 'yolo'
+            'obb_boxes': np.array([]),
+            'format': 'yolo',
+            'is_obb': False
         }
     
     annotations = np.array(annotations)
-    
-    return {
+    result = {
         'boxes': annotations[:, 1:5],  # [x_center, y_center, w, h]
         'classes': annotations[:, 0].astype(int),
-        'format': 'yolo'
+        'format': 'yolo',
+        'is_obb': is_obb
     }
+    
+    if is_obb:
+        obb_annotations = np.array(obb_annotations)
+        result['obb_boxes'] = obb_annotations[:, 1:9]  # [x1, y1, x2, y2, x3, y3, x4, y4]
+    else:
+        result['obb_boxes'] = np.array([])
+    
+    return result
 
 
 def load_coco_annotations(json_path: Path) -> Dict:
@@ -254,7 +297,47 @@ def get_image_list(image_dir: str, extensions: List[str] = ['.jpg', '.jpeg', '.p
     image_files = []
     
     for ext in extensions:
+        # 只搜索小写扩展名,避免在Windows上重复
         image_files.extend(image_dir.glob(f'*{ext}'))
-        image_files.extend(image_dir.glob(f'*{ext.upper()}'))
     
-    return sorted(image_files)
+    # 去重(以防万一)并排序
+    return sorted(list(set(image_files)))
+
+
+def obb_to_poly(obb: np.ndarray, img_width: int, img_height: int) -> np.ndarray:
+    """
+    将归一化的OBB坐标转换为绝对坐标的多边形
+    
+    Args:
+        obb: [8] (x1, y1, x2, y2, x3, y3, x4, y4) 归一化坐标
+        img_width: 图像宽度
+        img_height: 图像高度
+        
+    Returns:
+        [8] 绝对坐标的多边形点(扁平数组)
+    """
+    poly = obb.copy()
+    poly[0::2] *= img_width   # x坐标
+    poly[1::2] *= img_height  # y坐标
+    return poly
+
+
+def poly_to_obb(poly: np.ndarray, img_width: int, img_height: int) -> np.ndarray:
+    """
+    将绝对坐标的多边形转换为归一化的OBB坐标
+    
+    Args:
+        poly: [4, 2] 或 [8] 绝对坐标的多边形点
+        img_width: 图像宽度
+        img_height: 图像高度
+        
+    Returns:
+        [8] 归一化的OBB坐标
+    """
+    if poly.shape == (4, 2):
+        poly = poly.flatten()
+    
+    obb = poly.copy()
+    obb[0::2] /= img_width  # x坐标
+    obb[1::2] /= img_height  # y坐标
+    return obb

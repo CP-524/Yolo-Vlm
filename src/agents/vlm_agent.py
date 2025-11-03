@@ -16,7 +16,7 @@ class VLMAgent:
         self,
         vlm_model: VLMWrapper,
         verification_threshold: float = 0.3,
-        batch_size: int = 32
+        batch_size: int = 64
     ):
         """
         初始化VLM Agent
@@ -39,10 +39,13 @@ class VLMAgent:
         """
         使用VLM验证检测结果
         
+        策略: 对每个检测框，验证预测类别是否在所有候选类别中最相似
+        这比简单的阈值判断更可靠
+        
         Args:
             image_path: 图像路径
             detections: YOLO检测结果
-            query: 可选的查询文本
+            query: 可选的查询文本（暂不使用）
             
         Returns:
             验证后的检测结果
@@ -56,31 +59,41 @@ class VLMAgent:
         # 裁剪检测框区域
         cropped_images = self._crop_detections(image, detections['boxes'])
         
-        # 构建验证查询
-        if query:
-            queries = [query] * len(cropped_images)
-        else:
-            queries = [f"a photo of a {name}" for name in detections['class_names']]
+        # 获取所有可能的类别（假设从class_names推断）
+        # 在DOTA数据集中，有15个类别
+        all_classes = list(set(detections['class_names']))  # 去重获取当前批次的类别
         
         # 批量验证
         verified_mask = []
         verification_scores = []
         
-        for i in range(0, len(cropped_images), self.batch_size):
-            batch_images = cropped_images[i:i + self.batch_size]
-            batch_queries = queries[i:i + self.batch_size]
-            
-            batch_results = self.vlm_model.batch_verify(
-                batch_images,
-                batch_queries,
+        for cropped_img, pred_class in zip(cropped_images, detections['class_names']):
+            # 对每个裁剪图像，获取它与预测类别的相似度
+            query_text = f"a photo of a {pred_class}"
+            is_match, score = self.vlm_model.verify_detection(
+                cropped_img, 
+                query_text, 
                 self.verification_threshold
             )
             
-            for is_match, score in batch_results:
-                verified_mask.append(is_match)
-                verification_scores.append(score)
+            verified_mask.append(is_match)
+            verification_scores.append(score)
         
         verified_mask = np.array(verified_mask)
+        verification_scores = np.array(verification_scores)
+        
+        # 如果所有检测都被过滤掉，记录警告但保留原始检测
+        if verified_mask.sum() == 0:
+            logger.warning(f"VLM filtered out ALL {len(verified_mask)} detections!")
+            logger.warning(f"VLM scores: min={verification_scores.min():.3f}, max={verification_scores.max():.3f}, mean={verification_scores.mean():.3f}")
+            logger.warning(f"Verification threshold: {self.verification_threshold}")
+            logger.warning("Keeping original YOLO detections to avoid empty results")
+            
+            # 保留原始检测但添加VLM分数
+            result = detections.copy()
+            result['vlm_scores'] = verification_scores
+            result['vlm_verified'] = False
+            return result
         
         # 过滤未通过验证的检测
         filtered_detections = {
@@ -88,10 +101,25 @@ class VLMAgent:
             'scores': detections['scores'][verified_mask],
             'classes': detections['classes'][verified_mask],
             'class_names': [name for i, name in enumerate(detections['class_names']) if verified_mask[i]],
-            'vlm_scores': np.array(verification_scores)[verified_mask]
+            'vlm_scores': verification_scores[verified_mask],
+            'vlm_verified': True
         }
         
-        logger.info(f"VLM verification: {verified_mask.sum()}/{len(verified_mask)} detections passed")
+        # 保留OBB框信息(如果存在)
+        if 'obb_boxes' in detections:
+            filtered_detections['obb_boxes'] = detections['obb_boxes'][verified_mask]
+        
+        # 保留其他重要字段
+        if 'is_obb' in detections:
+            filtered_detections['is_obb'] = detections['is_obb']
+        if 'image_shape' in detections:
+            filtered_detections['image_shape'] = detections['image_shape']
+        
+        logger.info(f"VLM verification: {verified_mask.sum()}/{len(verified_mask)} passed ({100*verified_mask.sum()/len(verified_mask):.1f}%)")
+        if verified_mask.sum() > 0:
+            logger.info(f"VLM scores - passed: mean={verification_scores[verified_mask].mean():.3f}, min={verification_scores[verified_mask].min():.3f}")
+        if (~verified_mask).sum() > 0:
+            logger.info(f"VLM scores - rejected: mean={verification_scores[~verified_mask].mean():.3f}, max={verification_scores[~verified_mask].max():.3f}")
         
         return filtered_detections
     

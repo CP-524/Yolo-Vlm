@@ -1,3 +1,10 @@
+# DOTA数据集配置
+path: E:\project\yolo_agent\data\DOTA
+train: images/train
+val: images/val
+test: images/test
+
+
 names:
 - baseball-diamond
 - basketball-court

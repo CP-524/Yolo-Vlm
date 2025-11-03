@@ -90,7 +90,8 @@ class ModelLoader:
         model_name = model_name or vlm_config.get('model_name', 'ViT-B/32')
         device = device or vlm_config.get('device', 'cuda')
         
-        logger.info(f"Loading VLM model: {model_type}/{model_name}")
+        # logger.info(f"Loading VLM model: {model_type}/{model_name}")
+        logger.info(f"Loading VLM model: {model_type}")
         vlm_model = VLMWrapper(
             model_type=model_type,
             model_name=model_name,

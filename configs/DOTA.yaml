@@ -4,23 +4,23 @@ train: images/train
 val: images/val
 test: images/test
 
-# Classes
+# Classes (顺序必须与训练时保持一致!)
 names:
-  0: baseball-diamond
-  1: basketball-court
-  2: bridge
-  3: ground-track-field
-  4: harbor
-  5: helicopter
-  6: large-vehicle
-  7: plane
-  8: roundabout
-  9: ship
+  0: plane
+  1: ship
+  2: storage-tank
+  3: baseball-diamond
+  4: tennis-court
+  5: basketball-court
+  6: ground-track-field
+  7: harbor
+  8: bridge
+  9: large-vehicle
   10: small-vehicle
-  11: soccer-ball-field
-  12: storage-tank
-  13: swimming-pool
-  14: tennis-court
+  11: helicopter
+  12: roundabout
+  13: soccer-ball-field
+  14: swimming-pool
 nc: 15
 
 # Dataset configuration

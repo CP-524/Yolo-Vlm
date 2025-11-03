@@ -203,9 +203,9 @@ def main():
     # 在这里直接修改参数，不需要命令行输入
     
     # 基本配置
-    IMAGE_PATH = "data/DOTA/images/val/P0005.png"  # 图像路径
+    IMAGE_PATH = "pic\P0324.png"  # 图像路径
     METHOD = "agent"  # 检测方法: 'yolo', 'agent', 'compare'
-    QUERY = "find all planes"  # 查询文本（可选）
+    QUERY = "find all pships"  # 查询文本（可选）
     DEVICE = "cuda"  # 设备: 'cuda' 或 'cpu'
     YOLO_WEIGHTS = None  # YOLO权重路径（可选，None使用默认）
     

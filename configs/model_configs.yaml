@@ -2,13 +2,13 @@
 
 # YOLO Model Configuration
 yolo:
-  model_name: "YOLO/DOTA.pt"  # yolov8n, yolov8s, yolov8m, yolov8l, yolov8x, yolo11n
+  model_name: "YOLO/DOTA.pt"  # 使用你训练好的YOLOv8s-obb权重
   pretrained: true
-  confidence_threshold: 0.25
+  confidence_threshold: 0.25  # 与官方测试保持一致
   iou_threshold: 0.45
   max_det: 300
   device: "cuda"  # cuda or cpu
-  imgsz: 1024
+  imgsz: 1024  # 与训练时保持一致
 
 # VLM Model Configuration
 vlm:

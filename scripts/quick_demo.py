@@ -9,9 +9,9 @@ sys.path.append(str(Path(__file__).parent.parent))
 # ==================== 在这里修改你的配置 ====================
 
 # 基本配置
-IMAGE_PATH = "data/DOTA/images/val/P0005.png"  # 要检测的图像路径
-METHOD = "agent"  # 检测方法: 'yolo', 'agent', 'compare'
-QUERY = "find all planes"  # 查询文本（可选，None表示无查询）
+IMAGE_PATH = "E:\project\yolo_agent\pic\P0324.png" # 要检测的图像路径
+METHOD = "compare"  # 检测方法: 'yolo', 'agent', 'compare'
+QUERY = "find all ships" # 查询文本（可选，None表示无查询）
 DEVICE = "cuda"  # 设备: 'cuda' 或 'cpu'
 
 # 显示配置
@@ -19,29 +19,6 @@ SHOW_RESULT = True  # 是否显示检测结果
 SAVE_RESULT = True  # 是否保存检测结果图像
 
 # ==================== 配置结束，下面是执行代码 ====================
-
-# QUERY = "find all planes"           # 查找所有飞机
-# QUERY = "find all ships"            # 查找所有船只
-# QUERY = "find all helicopters"     # 查找所有直升机
-# QUERY = "find all bridges"         # 查找所有桥梁
-# QUERY = "find all vehicles"        # 查找所有车辆
-# QUERY = "find at least 3 planes"    # 查找至少3架飞机
-# QUERY = "find exactly 2 ships"     # 查找恰好2艘船
-# QUERY = "find more than 5 vehicles" # 查找超过5辆车
-# QUERY = "find all planes"  
-# QUERY = "find all aircraft"         # 查找所有飞行器（飞机+直升机）
-# QUERY = "find all transportation"   # 查找所有交通工具
-# QUERY = "find all infrastructure"   # 查找所有基础设施
-# QUERY = "find all sports facilities" # 查找所有体育设施
-# QUERY = "find large objects"        # 查找大型物体
-# QUERY = "find flying objects"       # 查找飞行物体
-# QUERY = "find water vehicles"       # 查找水上交通工具
-# QUERY = "find ground vehicles"      # 查找地面交通工具
-# QUERY = "find all objects in harbor" # 查找港口中的所有物体
-# QUERY = "find military aircraft"    # 查找军用飞机
-# QUERY = "find commercial vehicles"   # 查找商用车辆
-# QUERY = "find recreational facilities" # 查找娱乐设施
-
 def main():
     """主函数"""
     print("🚀 Quick Detection Script")
